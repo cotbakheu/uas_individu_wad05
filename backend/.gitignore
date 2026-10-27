@@ -1,0 +1,57 @@
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Build and packaging artifacts
+build/
+dist/
+wheels/
+*.egg-info/
+pip-wheel-metadata/
+MANIFEST
+
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Test, coverage, and type-checker output
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+
+# FastAPI/Uvicorn and application logs
+*.log
+logs/
+
+# Local database and generated files
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Alembic generated cache
+alembic/__pycache__/
+
+# IDE and operating-system files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
