@@ -1,8 +1,23 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from "vue-router";
+
+import { useAuthStore } from "@/stores/auth";
+import LoginView from "@/views/LoginView.vue";
+import RegisterView from "@/views/RegisterView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [],
-})
+  routes: [
+    { path: "/", redirect: "/dashboard" },
+    { path: "/login", component: LoginView, meta: { guest: true } },
+    { path: "/register", component: RegisterView, meta: { guest: true } },
+  ],
+});
 
-export default router
+router.beforeEach(async (to) => {
+  const auth = useAuthStore();
+  await auth.restore();
+  if (to.meta.auth && !auth.isAuthenticated) return "/login";
+  if (to.meta.guest && auth.isAuthenticated) return "/dashboard";
+});
+
+export default router;
