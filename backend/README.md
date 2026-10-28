@@ -5,119 +5,112 @@ pencatatan finansial UMKM. Aplikasi menggunakan pola MVC, SQLModel sebagai
 ORM, MySQL sebagai database relasional, Pydantic untuk validasi request, serta
 session dan CSRF token untuk keamanan akses.
 
-> **Status:** README ini menjadi panduan setup backend. Sesuaikan nama modul
-> pada perintah jika struktur implementasi akhir berbeda.
+Backend saat ini menggunakan SQLModel untuk membuat tabel secara otomatis saat
+aplikasi mulai. Alembic belum dikonfigurasi pada project ini, sehingga belum
+ada migration versioning.
 
 ## Teknologi
 
-- Python 3.11 atau lebih baru
+- Python 3.12 atau lebih baru
 - FastAPI
 - Uvicorn
 - SQLModel
 - SQLAlchemy dan PyMySQL
 - Pydantic Settings
-- Passlib atau pwdlib untuk hashing password
+- bcrypt untuk hashing password
 - Session middleware
 - MySQL 8.0 atau lebih baru
 
 ## Struktur folder
 
-Struktur backend mengikuti pola MVC. Controller menangani request dan response,
+Struktur backend mengikuti pola MVC. Route menangani request dan response,
 service berisi aturan bisnis, model merepresentasikan tabel database, sedangkan
 schema menangani validasi data masuk dan keluar.
 
 ```text
 backend/
-├── app/
-│   ├── __init__.py
-│   ├── main.py                 # Entry point FastAPI dan konfigurasi middleware
-│   ├── config.py               # Pengaturan aplikasi dari environment
-│   ├── database.py             # Engine, session, dan koneksi MySQL
-│   ├── dependencies.py         # Dependency autentikasi dan database session
-│   ├── models/                 # Model SQLModel dan relasi database
-│   │   ├── __init__.py
-│   │   ├── user.py
-│   │   ├── category.py
-│   │   ├── product.py
-│   │   └── transaction.py
-│   ├── schemas/                # Schema Pydantic untuk validasi API
-│   │   ├── __init__.py
-│   │   ├── auth.py
-│   │   ├── category.py
-│   │   ├── product.py
-│   │   └── transaction.py
-│   ├── controllers/            # Handler endpoint/controller MVC
-│   │   ├── __init__.py
-│   │   ├── auth_controller.py
-│   │   ├── dashboard_controller.py
-│   │   ├── category_controller.py
-│   │   ├── product_controller.py
-│   │   └── transaction_controller.py
-│   ├── services/               # Logika bisnis dan operasi database
-│   │   ├── __init__.py
-│   │   ├── auth_service.py
-│   │   ├── dashboard_service.py
-│   │   ├── category_service.py
-│   │   ├── product_service.py
-│   │   └── transaction_service.py
-│   ├── routes/                 # Registrasi dan pengelompokan route API
-│   │   ├── __init__.py
-│   │   ├── auth.py
-│   │   ├── dashboard.py
-│   │   ├── categories.py
-│   │   ├── products.py
-│   │   └── transactions.py
-│   ├── middleware/             # Session, CSRF, CORS, dan security headers
-│   │   ├── __init__.py
-│   │   ├── csrf.py
-│   │   └── security.py
-│   ├── core/                   # Utility keamanan dan fungsi umum
-│   │   ├── __init__.py
-│   │   ├── security.py         # Hash password dan verifikasi kredensial
-│   │   └── exceptions.py       # Exception handler aplikasi
-│   └── seed.py                 # Seed akun admin dan data awal lokal
-├── alembic/                    # Migration schema database
-│   ├── versions/
-│   └── env.py
-├── tests/                      # Unit test dan integration test API
-│   ├── conftest.py
-│   ├── test_auth.py
-│   ├── test_products.py
-│   ├── test_categories.py
-│   └── test_transactions.py
+├── src/
+│   └── app/
+│       ├── __init__.py
+│       ├── main.py             # Entry point FastAPI dan static frontend
+│       ├── core/               # Config, dependencies, dan security
+│       │   ├── __init__.py
+│       │   ├── config.py
+│       │   ├── dependencies.py
+│       │   └── security.py
+│       ├── database/            # Koneksi database dan seed data
+│       │   ├── __init__.py
+│       │   ├── database.py
+│       │   └── seed.py
+│       ├── models/              # Model SQLModel dan relasi database
+│       │   ├── __init__.py
+│       │   ├── user.py
+│       │   ├── category.py
+│       │   ├── product.py
+│       │   └── transaction.py
+│       ├── schemas/             # Schema Pydantic untuk validasi API
+│       │   ├── __init__.py
+│       │   ├── auth.py
+│       │   ├── category.py
+│       │   ├── product.py
+│       │   └── transaction.py
+│       ├── routes/              # Endpoint API per modul
+│       │   ├── __init__.py
+│       │   ├── auth.py
+│       │   ├── users.py
+│       │   ├── dashboard.py
+│       │   ├── categories.py
+│       │   ├── products.py
+│       │   └── transactions.py
+│       ├── services/            # Logika bisnis per modul
+│       │   ├── __init__.py
+│       │   ├── auth.py
+│       │   ├── users.py
+│       │   ├── dashboard.py
+│       │   ├── categories.py
+│       │   ├── products.py
+│       │   ├── transactions.py
+│       │   └── common.py
+│       └── middleware/          # Session, CSRF, dan middleware keamanan
+│           └── csrf.py
 ├── .env                        # Konfigurasi lokal (jangan di-commit)
 ├── .env.example                # Template environment tanpa secret
 ├── .gitignore
-├── alembic.ini
-├── requirements.txt
+├── pyproject.toml
+├── uv.lock
+├── umkm_local.db               # SQLite lokal jika digunakan
 └── README.md
 ```
 
 Alur request secara umum adalah:
 
 ```text
-Client -> routes -> controllers -> services -> models/database
-                    |
-                    +-> schemas (validasi request/response)
+Client -> routes -> services -> models/database
+             |
+             +-> schemas (validasi request/response)
 ```
 
-Nama file pada struktur di atas merupakan konvensi yang direkomendasikan.
-Apabila implementasi menggunakan nama modul berbeda, perbarui perintah
-startup dan dokumentasi endpoint tanpa mengubah pemisahan tanggung jawab MVC.
+Nama file pada struktur di atas merupakan struktur yang digunakan project.
+`routes` menerima request per modul (`auth`, `users`, `categories`, `products`,
+`transactions`, dan `dashboard`), `services` menjalankan aturan bisnis per modul,
+`models`
+merepresentasikan tabel, `schemas` memvalidasi payload, `database` mengelola
+koneksi/seed, dan `core` menyediakan konfigurasi serta dependency bersama.
 
 ## Prasyarat
 
 Pasang komponen berikut:
 
-1. Python 3.11+ dan `pip`.
+1. Python 3.12+.
 2. MySQL Server 8.0+.
-3. Git (opsional).
-4. Node.js 20 LTS untuk menjalankan frontend.
+3. `uv`.
+4. Git (opsional).
 
 Periksa Python:
 
 ```bash
 python --version
+uv --version
 ```
 
 ## Instalasi di Windows PowerShell
@@ -125,26 +118,16 @@ python --version
 Jalankan dari folder `backend`:
 
 ```powershell
-py -3.11 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+uv sync
 ```
 
-Jika PowerShell menolak aktivasi script, jalankan PowerShell sebagai pengguna
-yang sesuai atau gunakan interpreter virtual environment secara langsung:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-```
+`uv sync` akan membuat atau memperbarui virtual environment `.venv`
+berdasarkan `pyproject.toml` dan `uv.lock`.
 
 ## Instalasi di Linux/macOS
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+uv sync
 ```
 
 ## Menyiapkan database MySQL
@@ -179,6 +162,21 @@ SESSION_COOKIE_SECURE=false
 SESSION_COOKIE_SAMESITE=lax
 ```
 
+Untuk development tanpa MySQL, gunakan fallback SQLite berikut:
+
+```env
+DATABASE_URL=sqlite:///./umkm_local.db
+```
+
+File SQLite tersebut dibuat di folder `backend` dan hanya ditujukan untuk
+development lokal.
+
+Saat menggunakan driver PyMySQL, jangan meneruskan `ssl-mode` sebagai query
+parameter yang tidak diproses. Backend menormalisasi `ssl-mode` atau
+`ssl_mode` sebelum membuat engine: nilai `FALSE` dihapus, sedangkan
+`REQUIRED`, `verify_ca`, dan `verify_identity` mengaktifkan SSL dasar. Untuk
+production, gunakan sertifikat TLS dari provider database jika diwajibkan.
+
 Generate secret yang aman, misalnya:
 
 ```powershell
@@ -191,11 +189,30 @@ version control.
 
 ## Menjalankan backend
 
-Dengan virtual environment aktif:
+Jalankan dari folder `backend`:
 
 ```bash
-uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+uv run uvicorn app.main:app --app-dir src --reload --host 127.0.0.1 --port 8000
 ```
+
+Atau gunakan FastAPI CLI. Karena source code menggunakan layout `src/`, jalankan
+perintah ini dari folder `backend`:
+
+```bash
+uv run fastapi dev src/app/main.py
+```
+
+Entrypoint `app.main:app` juga sudah disimpan pada bagian `[tool.fastapi]` di
+`pyproject.toml`, sehingga setelah dependency project terpasang perintah berikut
+juga dapat digunakan:
+
+```bash
+uv run fastapi dev
+```
+
+Jangan menjalankan `fastapi dev` dari folder `backend/src/app`. Jalankan dari
+root folder `backend` agar konfigurasi `pyproject.toml` dan environment project
+ditemukan dengan benar.
 
 API tersedia pada:
 
@@ -208,25 +225,65 @@ Dokumentasi interaktif tersedia pada:
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
 
-## Migrasi dan seed data
+Saat frontend sudah dibuild, FastAPI juga menyajikan `frontend/dist` pada
+origin yang sama. Route `/api/*` tetap digunakan untuk REST API, sedangkan
+route Vue seperti `/dashboard` dikembalikan ke `index.html` agar Vue Router
+berfungsi setelah refresh halaman.
 
-Jalankan migrasi sesuai tooling yang digunakan project, contohnya:
+## Deployment satu platform
+
+Root project menyediakan [Dockerfile](../Dockerfile) untuk membuild Vue dan
+menjalankan hasil build tersebut melalui FastAPI dalam satu service:
 
 ```bash
-alembic upgrade head
-python -m app.seed
+docker build -t umkm-operasional .
+docker run --env-file backend/.env -p 8000:8000 umkm-operasional
 ```
 
-Jika project menggunakan `SQLModel.metadata.create_all()` untuk development,
-jalankan command seed yang disediakan setelah tabel dibuat. Jangan memakai
-`create_all()` sebagai pengganti migration pada production.
+Dockerfile akan:
+
+1. Menginstal dependency dan membuild frontend Vue.
+2. Menginstal dependency Python backend menggunakan `uv`.
+3. Menyalin `frontend/dist` ke image backend.
+4. Menjalankan Uvicorn pada `0.0.0.0` dan port dari environment `PORT`.
+
+Untuk production, gunakan konfigurasi frontend berikut saat build:
+
+```env
+VITE_API_BASE_URL=/api
+```
+
+Backend mendeteksi folder `frontend/dist` secara otomatis. Jika folder tersebut
+tidak ada, backend tetap berjalan sebagai API-only service tanpa fallback
+frontend.
+
+## Pembuatan tabel dan seed data
+
+Project saat ini belum menggunakan Alembic. Tabel dibuat melalui
+`SQLModel.metadata.create_all(engine)` ketika aplikasi mulai, dan juga ketika
+seed dijalankan.
+
+Jalankan seed dari folder `backend`:
+
+```bash
+uv run python -m app.database.seed
+```
+
+Seed membuat tabel `users`, `categories`, `products`, dan `transactions` jika
+belum ada, lalu membuat akun administrator serta kategori awal.
+
+Jika model database berubah, `create_all()` hanya membuat tabel yang belum ada;
+ia tidak mengubah atau menghapus kolom pada tabel yang sudah ada. Untuk
+perubahan schema production, Alembic perlu ditambahkan dan dikonfigurasi pada
+fase berikutnya. Karena itu, `alembic upgrade head` belum dapat digunakan pada
+project ini.
 
 ## Informasi akses login lokal
 
 Seed akun administrator lokal:
 
 ```text
-Email   : admin@umkm.local
+Email   : admin@umkm.com
 Password: Admin123!
 Peran   : admin
 ```
@@ -261,6 +318,7 @@ GET /api/dashboard/summary
 
 ```text
 GET    /api/products
+GET    /api/products?search=kopi&category_id=1&min_stock=0&max_stock=100
 POST   /api/products
 GET    /api/products/{id}
 PUT    /api/products/{id}
@@ -273,6 +331,7 @@ PUT    /api/categories/{id}
 DELETE /api/categories/{id}
 
 GET    /api/transactions
+GET    /api/transactions?type=income&product_id=1&search=penjualan&date_from=2026-01-01&date_to=2026-12-31
 POST   /api/transactions
 GET    /api/transactions/{id}
 PUT    /api/transactions/{id}
@@ -286,7 +345,8 @@ Database minimal memiliki tabel berelasi berikut:
 - `users`: identitas, role, dan kredensial ter-hash.
 - `categories`: kategori produk milik pengguna.
 - `products`: produk yang merujuk ke kategori dan pemiliknya.
-- `transactions`: pemasukan/pengeluaran yang merujuk ke pengguna dan produk.
+- `transactions`: pemasukan/pengeluaran berbasis jumlah unit produk yang merujuk
+  ke pengguna dan produk.
 
 Relasi utamanya:
 
@@ -298,14 +358,22 @@ users      1 ──── N transactions
 products   1 ──── N transactions
 ```
 
+Pada transaksi, `amount` berarti jumlah unit produk dan `product_id` wajib
+diisi. Transaksi `income` berarti produk terjual sehingga mengurangi stok,
+sedangkan `expense` berarti pengadaan/restock sehingga menambah stok.
+Response transaksi juga menyediakan `total_amount`, yaitu nilai uang dari
+`harga_produk * amount`. Pengeluaran ditolak jika stok tidak mencukupi. Nilai finansial
+dashboard dihitung dari `product.price * transaction.amount`.
+
 ## Keamanan yang wajib dipertahankan
 
 1. Gunakan SQLModel/SQLAlchemy expression dan parameter binding; jangan
    menyusun SQL dari string input pengguna.
 2. Validasi semua request menggunakan model Pydantic/SQLModel, termasuk angka
    non-negatif, enum tipe transaksi, panjang string, dan foreign key.
-3. Hash password dengan algoritma modern dan verifikasi menggunakan helper
-   library, bukan perbandingan plaintext.
+3. Hash password menggunakan bcrypt dan verifikasi menggunakan helper library,
+   bukan perbandingan plaintext. Password dibatasi maksimal 72 byte UTF-8 oleh
+   batasan bcrypt.
 4. Gunakan session cookie `HttpOnly`, `SameSite=Lax` atau lebih ketat, serta
    `Secure=true` pada HTTPS.
 5. Lindungi request mutasi (`POST`, `PUT`, `PATCH`, `DELETE`) dengan CSRF
@@ -316,13 +384,7 @@ products   1 ──── N transactions
    credentials aktif.
 8. Jangan mencatat password, session secret, CSRF token, atau cookie ke log.
 
-## Pengujian dan pemeriksaan
-
-Contoh perintah yang diharapkan tersedia:
-
-```bash
-pytest
-```
+## Pemeriksaan manual
 
 Pemeriksaan endpoint sederhana:
 
@@ -330,9 +392,15 @@ Pemeriksaan endpoint sederhana:
 curl http://localhost:8000/health
 ```
 
-Pastikan endpoint health mengembalikan status sukses, login menghasilkan
-session yang valid, dan endpoint CRUD menolak request tanpa autentikasi/CSRF
-sesuai kebijakan aplikasi.
+Endpoint tersebut seharusnya mengembalikan:
+
+```json
+{ "status": "ok" }
+```
+
+Project ini belum menyediakan file test otomatis. Validasi sementara dilakukan
+melalui Swagger UI pada `http://localhost:8000/docs` dan pemeriksaan endpoint
+secara manual.
 
 ## Troubleshooting
 
@@ -343,10 +411,12 @@ Pastikan service MySQL aktif, port `3306` terbuka, database sudah dibuat, dan
 
 ### `ModuleNotFoundError`
 
-Pastikan virtual environment aktif dan dependency terpasang:
+Pastikan command dijalankan dari folder `backend` dan dependency telah
+disinkronkan:
 
 ```bash
-python -m pip install -r requirements.txt
+uv sync
+uv run python -m app.database.seed
 ```
 
 ### Frontend terkena CORS
