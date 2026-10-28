@@ -4,23 +4,20 @@ Frontend aplikasi ini menyediakan antarmuka Vue.js untuk pencatatan penghasilan,
 pengeluaran, produk, kategori, transaksi, autentikasi pengguna, dan dashboard
 ringkasan finansial.
 
-> **Status:** README ini menjadi panduan setup frontend. Pastikan implementasi
-> Vue.js dan API backend sudah tersedia sebelum menjalankan perintah di bawah.
-
 ## Teknologi
 
 - Vue 3
 - Vite
 - Vue Router
 - Pinia
-- Axios
-- Node.js 20 LTS atau lebih baru
+- Fetch API
+- Node.js 22 atau lebih baru
 
 ## Prasyarat
 
 Pastikan perangkat lokal sudah memiliki:
 
-1. Node.js 20 LTS atau lebih baru.
+1. Node.js 22 atau lebih baru.
 2. npm 10 atau lebih baru.
 3. Backend FastAPI berjalan pada `http://localhost:8000` saat development.
 4. Browser modern seperti Chrome, Edge, atau Firefox.
@@ -94,18 +91,18 @@ Docker membuild Vue dengan `npm run build`, menyalin `frontend/dist` ke image
 backend, lalu menjalankan FastAPI sebagai satu service. FastAPI menyajikan API
 pada `/api` dan aplikasi Vue pada route lainnya.
 
-## Struktur halaman yang direncanakan
+## Struktur frontend
 
 ```text
 src/
-├── assets/           # Gambar dan stylesheet
-├── components/       # Komponen UI yang dapat digunakan ulang
-├── layouts/          # Layout publik dan layout aplikasi
-├── router/           # Definisi route dan navigation guard
-├── stores/           # State autentikasi dan data aplikasi (Pinia)
-├── services/         # Konfigurasi Axios dan pemanggilan API
-├── views/            # Halaman login, dashboard, dan CRUD
-└── App.vue
+├── router/           # Route Vue dan navigation guard autentikasi
+├── services/         # Fetch API client, CSRF, dan error handling
+├── stores/           # State autentikasi Pinia
+├── views/            # Login, register, dashboard, dan CRUD
+├── styles.css        # Style global
+├── types.ts          # Type TypeScript API
+├── App.vue           # Layout aplikasi dan navigasi
+└── main.ts           # Bootstrap Vue dan Pinia
 ```
 
 Route utama yang digunakan:
@@ -174,9 +171,9 @@ PUT    /api/transactions/{id}
 DELETE /api/transactions/{id}
 ```
 
-Axios harus mengirim cookie sesi secara konsisten (`withCredentials: true`).
-Untuk request yang mengubah data, frontend juga harus mengirim token CSRF
-sesuai mekanisme yang disediakan backend, misalnya header `X-CSRF-Token`.
+Fetch API mengirim cookie sesi dengan `credentials: 'include'`. Untuk request
+yang mengubah data, API client mengirim token CSRF melalui header
+`X-CSRF-Token`.
 
 ## Troubleshooting
 

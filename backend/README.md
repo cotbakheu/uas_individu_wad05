@@ -227,13 +227,14 @@ Dokumentasi interaktif tersedia pada:
 
 Saat frontend sudah dibuild, FastAPI juga menyajikan `frontend/dist` pada
 origin yang sama. Route `/api/*` tetap digunakan untuk REST API, sedangkan
-route Vue seperti `/dashboard` dikembalikan ke `index.html` agar Vue Router
-berfungsi setelah refresh halaman.
+route Vue seperti `/`, `/login`, dan `/dashboard` dikembalikan ke `index.html`
+agar Vue Router berfungsi setelah refresh halaman.
 
 ## Deployment satu platform
 
 Root project menyediakan [Dockerfile](../Dockerfile) untuk membuild Vue dan
-menjalankan hasil build tersebut melalui FastAPI dalam satu service:
+menjalankan hasil build tersebut melalui FastAPI dalam satu service. Jalankan
+command Docker dari root repository, bukan dari folder `backend`:
 
 ```bash
 docker build -t umkm-operasional .
@@ -254,8 +255,8 @@ VITE_API_BASE_URL=/api
 ```
 
 Backend mendeteksi folder `frontend/dist` secara otomatis. Jika folder tersebut
-tidak ada, backend tetap berjalan sebagai API-only service tanpa fallback
-frontend.
+tidak ada, route frontend mengembalikan `Frontend build not found`; API tetap
+dapat digunakan.
 
 ## Pembuatan tabel dan seed data
 
