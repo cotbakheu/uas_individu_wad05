@@ -66,7 +66,11 @@ export function setCsrfToken(token: string) {
 export const api = {
   get: <T>(path: string, params?: Record<string, string | number | undefined | null>) => {
     const query = params
-      ? new URLSearchParams(Object.entries(params).filter((entry): entry is [string, string | number] => entry[1] !== undefined && entry[1] !== null && entry[1] !== '')).toString()
+      ? new URLSearchParams(
+          Object.entries(params)
+            .filter((entry) => entry[1] !== undefined && entry[1] !== null && entry[1] !== '')
+            .map(([key, value]) => [key, String(value)]),
+        ).toString()
       : ''
     return request<T>(query ? `${path}?${query}` : path)
   },

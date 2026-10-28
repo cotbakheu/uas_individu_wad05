@@ -12,7 +12,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
-COPY backend/pyproject.toml backend/uv.lock ./backend/
+COPY backend/pyproject.toml backend/uv.lock backend/README.md ./backend/
 COPY backend/src ./backend/src
 RUN pip install --no-cache-dir uv
 RUN uv sync --project /app/backend --no-dev
