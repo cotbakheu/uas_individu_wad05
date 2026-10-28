@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/auth";
 import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
 import CategoriesView from "@/views/CategoriesView.vue";
+import ProductsView from "@/views/ProductsView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,6 +13,7 @@ const router = createRouter({
     { path: "/login", component: LoginView, meta: { guest: true } },
     { path: "/register", component: RegisterView, meta: { guest: true } },
     { path: "/categories", component: CategoriesView, meta: { auth: true } },
+    { path: "/products", component: ProductsView, meta: { auth: true } },
   ],
 });
 

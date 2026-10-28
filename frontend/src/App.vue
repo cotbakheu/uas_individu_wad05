@@ -25,6 +25,7 @@ async function signOut() {
       </RouterLink>
       <nav class="main-nav">
         <RouterLink to="/dashboard">Dashboard</RouterLink>
+        <RouterLink to="/products">Produk</RouterLink>
         <RouterLink to="/categories">Kategori</RouterLink>
       </nav>
       <div class="user-menu">
