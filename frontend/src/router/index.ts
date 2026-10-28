@@ -5,6 +5,7 @@ import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
 import CategoriesView from "@/views/CategoriesView.vue";
 import ProductsView from "@/views/ProductsView.vue";
+import TransactionsView from "@/views/TransactionsView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,6 +15,11 @@ const router = createRouter({
     { path: "/register", component: RegisterView, meta: { guest: true } },
     { path: "/categories", component: CategoriesView, meta: { auth: true } },
     { path: "/products", component: ProductsView, meta: { auth: true } },
+    {
+      path: "/transactions",
+      component: TransactionsView,
+      meta: { auth: true },
+    },
   ],
 });
 
